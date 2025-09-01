@@ -2,7 +2,7 @@ name: Deploy Simple Site
 
 on:
   push:
-    branches: [ "main" ]   # adjust to your default branch
+    branches: [ "master" ]   # adjust to your default branch
 
 jobs:
   deploy:

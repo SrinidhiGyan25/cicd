@@ -2,7 +2,7 @@ name: Deploy Simple Site
 
 on:
   push:
-    branches: [ "master" ]   # adjust to your default branch
+    branches: [ "main" ]   # or master depending on your repo
 
 jobs:
   deploy:
@@ -12,21 +12,29 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v3
 
+    # 🔑 Decode the base64 private key back into id_rsa
+    - name: Decode SSH key
+      run: |
+        echo "${{ secrets.DROPLET_SSH_KEY }}" | base64 -d > id_rsa
+        chmod 600 id_rsa
+
+    # 📂 Copy project files to droplet
     - name: Copy files to droplet
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.DROPLET_IP }}
         username: root
-        key: ${{ secrets.DROPLET_SSH_KEY }}
+        key_path: ./id_rsa
         source: "."
         target: "/root/simple-site"
 
+    # 🐳 Build and run Docker container on droplet
     - name: Build & Run container on droplet
       uses: appleboy/ssh-action@v0.1.8
       with:
         host: ${{ secrets.DROPLET_IP }}
         username: root
-        key: ${{ secrets.DROPLET_SSH_KEY }}
+        key_path: ./id_rsa
         script: |
           cd /root/simple-site
           docker build -t simple-site .

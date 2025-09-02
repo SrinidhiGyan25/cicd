@@ -1,32 +1,25 @@
-name: Deploy Simple Site
+name: Deploy to Droplet
 
 on:
   push:
-    branches: [ "master" ]   # change if your default branch is "master"
+    branches: [ "master" ]   # 👈 change if your branch is "master"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout repo
       uses: actions/checkout@v3
 
-    # 🔑 Decode the private key from GitHub Secrets
-    - name: Decode SSH key
-      run: |
-        echo "${{ secrets.DROPLET_SSH_KEY }}" | base64 -d > id_rsa
-        chmod 600 id_rsa
-        ls -l id_rsa   # debug check
-
-    # 📂 Copy project files to droplet (only needed files)
+    # 📂 Copy project files to droplet
     - name: Copy files to droplet
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.DROPLET_IP }}
         username: root
-        key_path: ./id_rsa
-        source: "index.html,Dockerfile"   # 👈 add more if needed (app/, requirements.txt, etc.)
+        key: ${{ secrets.DROPLET_SSH_KEY }}   # 👈 raw private key (with newlines) pasted in GitHub Secrets
+        source: "index.html,Dockerfile"       # 👈 adjust to include app/, requirements.txt, etc.
         target: "/root/simple-site"
 
     # 🐳 Build & Run Docker container on droplet
@@ -35,7 +28,7 @@ jobs:
       with:
         host: ${{ secrets.DROPLET_IP }}
         username: root
-        key_path: ./id_rsa
+        key: ${{ secrets.DROPLET_SSH_KEY }}
         script: |
           cd /root/simple-site
           docker build -t simple-site .

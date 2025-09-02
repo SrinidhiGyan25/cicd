@@ -2,7 +2,7 @@ name: Deploy to Droplet
 
 on:
   push:
-    branches: [ "main" ]   # change if your branch is "master"
+    branches: [ "master" ]   # change if your branch is "master"
 
 jobs:
   deploy:

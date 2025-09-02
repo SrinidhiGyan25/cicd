@@ -2,7 +2,7 @@ name: Deploy to Droplet
 
 on:
   push:
-    branches: [ "master" ]   # 👈 change if your branch is "master"
+    branches: [ "main" ]   # change if your branch is "master"
 
 jobs:
   deploy:
@@ -18,8 +18,8 @@ jobs:
       with:
         host: ${{ secrets.DROPLET_IP }}
         username: root
-        key: ${{ secrets.DROPLET_SSH_KEY }}   # 👈 raw private key (with newlines) pasted in GitHub Secrets
-        source: "index.html,Dockerfile"       # 👈 adjust to include app/, requirements.txt, etc.
+        key: ${{ secrets.DEPLOYER_SSH_KEY }}   # 👈 updated secret name
+        source: "index.html,Dockerfile"        # adjust to include app/, requirements.txt, etc.
         target: "/root/simple-site"
 
     # 🐳 Build & Run Docker container on droplet
@@ -28,7 +28,7 @@ jobs:
       with:
         host: ${{ secrets.DROPLET_IP }}
         username: root
-        key: ${{ secrets.DROPLET_SSH_KEY }}
+        key: ${{ secrets.DEPLOYER_SSH_KEY }}   # 👈 updated secret name
         script: |
           cd /root/simple-site
           docker build -t simple-site .
